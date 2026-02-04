@@ -49,13 +49,23 @@ function renderWeeklyScheduleTable() {
         let endMinOfDay = timeToMinutes(slot.endTime);
         const isOvernight = endMinOfDay <= startMinOfDay;
 
-        const ratioText = parseFloat(slot.costDivider) < 1 ? `<span class="bg-black/20 px-1 rounded mr-1">${1 / parseFloat(slot.costDivider)}:1</span>` : (slot.costDivider != 1 ? `<span class="bg-black/20 px-1 rounded mr-1">1:${slot.costDivider}</span>` : '');
+        // Ratio logic (show KM if available, otherwise show ratio)
+        let ratioText = '';
+        if (slot.km) {
+            ratioText = `<span class="bg-black/20 px-1 rounded mr-1">${slot.km}km</span>`;
+        } else {
+            ratioText = parseFloat(slot.costDivider) < 1 
+                ? `<span class="bg-black/20 px-1 rounded mr-1">${1 / parseFloat(slot.costDivider)}:1</span>` 
+                : (slot.costDivider != 1 ? `<span class="bg-black/20 px-1 rounded mr-1">1:${slot.costDivider}</span>` : '');
+        }
+
         const serviceText = serviceTypeMap[slot.serviceType] || slot.serviceType;
         let icon = '';
         if(serviceText.includes('Cleaning')) icon = 'fa-broom';
         else if(serviceText.includes('Social')) icon = 'fa-user-friends';
         else if(serviceText.includes('Sleep')) icon = 'fa-bed';
         else if(serviceText.includes('Yard')) icon = 'fa-leaf';
+        else if(serviceText.includes('Travel')) icon = 'fa-car';
         
         const blockContent = `
             <div class="flex items-center gap-1 w-full h-full overflow-hidden leading-none">
@@ -207,7 +217,7 @@ function renderDailyServices() {
                             <tr>
                                 <th class="px-4 py-3">Service</th>
                                 <th class="px-4 py-3">Time</th>
-                                <th class="px-4 py-3 text-center">Hrs</th>
+                                <th class="px-4 py-3 text-center">Qty</th>
                                 <th class="px-4 py-3 text-right">Cost</th>
                                 <th class="px-4 py-3 w-10"></th>
                             </tr>
@@ -225,13 +235,18 @@ function renderDailyServices() {
         });
 
         servicesStartingToday.forEach(inst => {
-            let hours = 0;
+            let qty = 0;
+            // Handle Hours or KM
             if(inst.details.includes('hrs')) {
                 const match = inst.details.match(/\(([\d\.]+) hrs\)/);
-                if(match) hours = parseFloat(match[1]);
+                if(match) qty = parseFloat(match[1]);
+            } else if (inst.details.includes('km')) {
+                const match = inst.details.match(/\(([\d\.]+) km\)/);
+                if(match) qty = parseFloat(match[1]);
             }
             
-            totalDayHours += hours;
+            // Note: totalDayHours is now a mix of hrs/km, which is conceptually weird but okay for "Qty"
+            totalDayHours += qty; 
             totalDayCost += inst.cost;
 
             html += `
@@ -241,7 +256,7 @@ function renderDailyServices() {
                         <div class="text-[10px] text-blue-500">${getRateTypeSuffix(inst.rateType)}</div>
                     </td>
                     <td class="px-4 py-3 text-gray-500 text-xs">${inst.details}</td>
-                    <td class="px-4 py-3 text-center text-gray-600 font-mono text-xs">${hours > 0 ? hours.toFixed(2) : '-'}</td>
+                    <td class="px-4 py-3 text-center text-gray-600 font-mono text-xs">${qty > 0 ? qty.toFixed(2) : '-'}</td>
                     <td class="px-4 py-3 text-right font-medium text-gray-800">${formatNumber(inst.cost, true)}</td>
                     <td class="px-4 py-3 text-center">
                         <button class="text-gray-300 hover:text-red-500 transition-colors delete-instance-btn" data-instance-id="${inst.instanceId}" title="Delete">
@@ -257,7 +272,7 @@ function renderDailyServices() {
                         <tfoot class="bg-gray-50 font-bold border-t border-gray-100 text-gray-800">
                             <tr>
                                 <td colspan="2" class="px-4 py-3 text-right text-xs uppercase text-gray-500">Total</td>
-                                <td class="px-4 py-3 text-center">${totalDayHours.toFixed(2)}</td>
+                                <td class="px-4 py-3 text-center">-</td>
                                 <td class="px-4 py-3 text-right text-blue-600">${formatNumber(totalDayCost, true)}</td>
                                 <td></td>
                             </tr>
