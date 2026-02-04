@@ -1,0 +1,445 @@
+/* Global Transitions */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #f3f4f6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Page Layout */
+.page {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Modern Inputs */
+#calculatorPage input[type="text"],
+#calculatorPage input[type="number"],
+#calculatorPage input[type="date"],
+#calculatorPage input[type="time"],
+#calculatorPage select {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e5e7eb;
+}
+
+#calculatorPage input:focus,
+#calculatorPage select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+    border-color: #3b82f6;
+    outline: none;
+}
+
+/* Collapsible Sections */
+.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease-in-out;
+    max-height: 0;
+    opacity: 0;
+}
+.collapsible-content.expanded {
+    opacity: 1;
+}
+
+#calculatorPage .toggle-button-icon { 
+    display: inline-block; 
+    width: 1em; 
+    text-align: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#calculatorPage .toggle-button-icon.rotated {
+    transform: rotate(90deg);
+}
+
+/* Modern Period Box */
+.period-box {
+    border: 0;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.period-box:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
+
+.period-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(to right, #f9fafb, #ffffff);
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #374151;
+}
+
+.period-body {
+    padding: 0;
+}
+
+.period-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f9fafb;
+    border-top: 1px solid #f3f4f6;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+/* Tables */
+.period-service-table {
+    width: 100%;
+    font-size: 0.875rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.period-service-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.5rem;
+}
+
+.period-service-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+
+.period-service-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Calendar Styling */
+.calendar-container {
+    background: #fff;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.calendar-header {
+    background: #ffffff;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #e5e7eb;
+    padding: 1px;
+}
+
+.calendar-day-name {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    padding: 0.75rem 0;
+    background-color: #f9fafb;
+}
+
+.calendar-day {
+    min-height: 90px;
+    background-color: #fff;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.calendar-day:hover:not(.disabled) {
+    background-color: #f0f9ff;
+    z-index: 10;
+}
+
+.calendar-day.today .day-number {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+    color: white;
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+}
+
+.calendar-day.selected {
+    background-color: #eff6ff !important;
+    box-shadow: inset 0 0 0 2px #3b82f6;
+}
+
+/* Indicators */
+.dot-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.dot-service { background-color: #10b981; }
+.dot-holiday { background-color: #ef4444; }
+
+/* Weekly Schedule Grid */
+#weeklyScheduleTable { 
+    border-collapse: separate; 
+    border-spacing: 0;
+    width: 100%; 
+    table-layout: fixed; 
+}
+#weeklyScheduleTable th, #weeklyScheduleTable td { 
+    border: 1px solid #e5e7eb; 
+    border-top: none;
+    border-left: none;
+}
+#weeklyScheduleTable th { 
+    background-color: #f9fafb; 
+    padding: 0.5rem; 
+    font-size: 0.75rem;
+    color: #6b7280;
+    border-top: 1px solid #e5e7eb;
+}
+#weeklyScheduleTable th:first-child {
+    border-left: 1px solid #e5e7eb;
+}
+#weeklyScheduleTable td { 
+    height: 40px; 
+    vertical-align: top; 
+    cursor: pointer; 
+    position: relative; 
+}
+#weeklyScheduleTable td:first-child {
+    border-left: 1px solid #e5e7eb;
+}
+#weeklyScheduleTable tr:last-child td {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* === DRAG SELECTION HIGHLIGHT === */
+td.selection-highlight,
+.selection-highlight {
+    background-color: rgba(59, 130, 246, 0.5) !important; /* Blue-500 @ 50% opacity */
+    box-shadow: inset 0 0 0 2px #2563eb !important; /* Blue Border */
+    z-index: 50 !important;
+    position: relative; 
+}
+
+body.dragging-selection {
+    user-select: none;
+    cursor: crosshair;
+}
+
+/* Service Blocks (Chips) */
+.service-block { 
+    position: absolute; 
+    border-radius: 6px; 
+    color: white; 
+    font-size: 0.7rem; 
+    padding: 2px 6px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.service-block:hover { 
+    z-index: 110; 
+    transform: scale(1.05); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+}
+
+/* Floating Calculator Button */
+.floating-calculator-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.floating-calculator-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* === CALCULATOR CONTAINER REDESIGN (Modern/iOS Style) === */
+.calculator-container {
+    position: fixed;
+    bottom: 7rem;
+    right: 2rem;
+    width: 320px;
+    background-color: #000000;
+    border-radius: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transform-origin: bottom right;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    z-index: 999;
+    pointer-events: none;
+    padding-bottom: 24px;
+}
+
+.calculator-container.open {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Calculator Display */
+.calculator-display {
+    background-color: #000000;
+    color: white;
+    text-align: right;
+    padding: 30px 24px 10px;
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+}
+
+.calculator-history {
+    font-size: 1.2rem;
+    color: #a1a1aa;
+    height: 30px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.calculator-current-input {
+    font-size: 4rem;
+    font-weight: 300;
+    line-height: 1;
+    word-break: break-all;
+    color: white;
+}
+
+/* Calculator Buttons Grid */
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 0 16px;
+    background-color: #000000;
+}
+
+/* Calculator Button Styles */
+.calc-btn {
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    background-color: #333333; /* Dark Grey for numbers */
+    padding: 0;
+}
+
+.calc-btn:active {
+    filter: brightness(1.3);
+    transform: scale(0.95);
+}
+
+/* Operator Buttons (Orange) */
+.calc-btn.operator {
+    background-color: #ff9f0a;
+    color: white;
+}
+
+/* Function Buttons (Light Grey) */
+.calc-btn.function {
+    background-color: #a5a5a5;
+    color: black;
+    font-weight: 600;
+}
+
+/* Zero button spans 2 columns */
+.calc-btn.zero {
+    grid-column: span 2;
+    width: 132px; /* 60px * 2 + 12px gap */
+    border-radius: 35px; /* Pill shape */
+    justify-content: flex-start;
+    padding-left: 24px;
+}
+
+/* Hover effects */
+.calc-btn:hover {
+    filter: brightness(1.2);
+}
+
+/* Modals */
+#scheduleModalOverlay, #recurringServiceModalOverlay, #calcMessageBoxOverlay {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#scheduleModalContent, #recurringServiceModalContent, #calcMessageBoxContent {
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Dark Mode Overrides - Modern */
+body.dark {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+
+body.dark .bg-white { background-color: #1f2937 !important; }
+body.dark .bg-gray-50, body.dark .bg-gray-100 { background-color: #111827 !important; }
+body.dark .text-gray-800 { color: #f9fafb !important; }
+body.dark .text-gray-700 { color: #e5e7eb !important; }
+body.dark .text-gray-600 { color: #d1d5db !important; }
+body.dark .border-gray-200 { border-color: #374151 !important; }
+body.dark input, body.dark select { 
+    background-color: #374151; 
+    border-color: #4b5563; 
+    color: white; 
+}
+body.dark .period-box, body.dark .calendar-container {
+    background-color: #1f2937;
+    border-color: #374151;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+}
+body.dark .period-header {
+    background: linear-gradient(to right, #1f2937, #111827);
+    border-bottom-color: #374151;
+    color: #f3f4f6;
+}
+body.dark .calendar-day { background-color: #1f2937; color: #e5e7eb; }
+body.dark .calendar-day:hover:not(.disabled) { background-color: #374151; }
+body.dark #weeklyScheduleTable th { background-color: #374151; color: #e5e7eb; }
