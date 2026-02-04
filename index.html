@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Core Funding Calculator</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- App Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="Core_Funding_Calculator_32x32.png">
@@ -104,6 +106,48 @@
             <button class="calc-btn operator" data-key="=">=</button>
         </div>
     </div>
+
+    <!-- Touch Event Bridge for Schedule Selection -->
+    <script>
+        /**
+         * Converts touch events to mouse events specifically for the schedule grid.
+         * This allows click-and-drag logic to work on touch screens.
+         */
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.closest('#weeklyScheduleTable td')) {
+                // Prevent scrolling when starting a selection drag
+                e.preventDefault();
+                dispatchMappedEvent(e, 'mousedown');
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (document.body.classList.contains('dragging-selection')) {
+                e.preventDefault(); // Stop scrolling while dragging
+                dispatchMappedEvent(e, 'mousemove');
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if (document.body.classList.contains('dragging-selection')) {
+                dispatchMappedEvent(e, 'mouseup');
+            }
+        }, { passive: false });
+
+        function dispatchMappedEvent(touchEvent, mouseType) {
+            const touch = touchEvent.changedTouches[0];
+            const mouseEvent = new MouseEvent(mouseType, {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                screenX: touch.screenX,
+                screenY: touch.screenY
+            });
+            touchEvent.target.dispatchEvent(mouseEvent);
+        }
+    </script>
 
     <!-- Service Worker Registration -->
     <script>
