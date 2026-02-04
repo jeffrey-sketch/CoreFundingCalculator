@@ -308,11 +308,25 @@ function setupModalListeners() {
     document.getElementById('deleteServiceBtn').addEventListener('click', deleteServiceFromModal);
 
     const modalServiceType = document.getElementById('modalServiceType');
+    
+    // Logic for Travel KM Input
+    const kmInput = document.getElementById('modalTravelKm');
+    const costDisplay = document.getElementById('modalTravelCostDisplay');
+    kmInput.addEventListener('input', (e) => {
+        const km = parseFloat(e.target.value) || 0;
+        const cost = km * 1.00; // Rate is fixed $1/km
+        costDisplay.textContent = '$' + cost.toFixed(2);
+    });
+
     modalServiceType.addEventListener('change', () => {
         const selectedType = modalServiceType.value;
         const isManual = ['Consumable', 'Transport'].includes(selectedType);
-        document.getElementById('modalWeeklyFields').style.display = isManual ? 'none' : 'block';
+        const isTravel = selectedType === 'Travel';
+
+        // 1. Reset standard visibility
+        document.getElementById('modalWeeklyFields').style.display = (isManual || isTravel) ? 'none' : 'block';
         document.getElementById('modalManualFields').style.display = isManual ? 'block' : 'none';
+        document.getElementById('modalTravelFields').style.display = isTravel ? 'block' : 'none';
         
         const startEl = document.getElementById('modalStartTime');
         const endEl = document.getElementById('modalEndTime');
@@ -341,7 +355,7 @@ function updateModalRatePlaceholder() {
     const day = document.getElementById('modalSlotDay').value;
     const startDateStr = document.getElementById('periodStartDate').value;
 
-    if (!startTime || !day || !serviceType || !startDateStr || ['Consumable', 'Transport'].includes(serviceType)) {
+    if (!startTime || !day || !serviceType || !startDateStr || ['Consumable', 'Transport', 'Travel'].includes(serviceType)) {
         rateEl.placeholder = 'Auto';
         return;
     }
@@ -383,9 +397,19 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
         document.getElementById('deleteServiceBtn').style.display = 'block';
         
         if (instance.type === 'manual' && !instance.details.includes('hrs')) {
-            typeEl.value = instance.description.startsWith('Consumable') ? 'Consumable' : 'Transport';
-            document.getElementById('modalManualDescription').value = instance.description.split(': ')[1] || '';
-            document.getElementById('modalManualCost').value = instance.cost;
+            // Check if it's Travel by description or other marker
+            if (instance.description.startsWith('Travel')) {
+                typeEl.value = 'Travel';
+                // Extract KM from "Travel: 20 km"
+                const kmMatch = instance.description.match(/Travel: ([\d\.]+) km/);
+                const km = kmMatch ? parseFloat(kmMatch[1]) : 0;
+                document.getElementById('modalTravelKm').value = km;
+                document.getElementById('modalTravelCostDisplay').textContent = '$' + (km * 1.00).toFixed(2);
+            } else {
+                typeEl.value = instance.description.startsWith('Consumable') ? 'Consumable' : 'Transport';
+                document.getElementById('modalManualDescription').value = instance.description.split(': ')[1] || '';
+                document.getElementById('modalManualCost').value = instance.cost;
+            }
         } else {
             const longName = Object.keys(serviceTypeMap).find(key => serviceTypeMap[key] === instance.description) || instance.description;
             typeEl.value = longName;
@@ -403,6 +427,10 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             endEl.value = String(hour + 1).padStart(2, '0') + ':00';
         }
         document.getElementById('deleteServiceBtn').style.display = 'none';
+        
+        // Reset Travel Fields
+        document.getElementById('modalTravelKm').value = '';
+        document.getElementById('modalTravelCostDisplay').textContent = '$0.00';
 
     } else if (serviceId) {
         // Edit Recurring
@@ -416,6 +444,12 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             document.getElementById('modalRatio').value = slot.costDivider;
             document.getElementById('modalRate').value = slot.overrideRate || '';
             document.getElementById('deleteServiceBtn').style.display = 'inline-flex';
+            
+            // Populate Travel KM if available
+            if (slot.serviceType === 'Travel') {
+                document.getElementById('modalTravelKm').value = slot.km || '';
+                document.getElementById('modalTravelCostDisplay').textContent = '$' + ((slot.km || 0) * 1.00).toFixed(2);
+            }
         }
     } else {
         // New Recurring Service
@@ -426,6 +460,10 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             endEl.value = String(hour + 1).padStart(2, '0') + ':00';
         }
         document.getElementById('deleteServiceBtn').style.display = 'none';
+        
+        // Reset Travel Fields
+        document.getElementById('modalTravelKm').value = '';
+        document.getElementById('modalTravelCostDisplay').textContent = '$0.00';
     }
 
     typeEl.dispatchEvent(new Event('change'));
@@ -441,6 +479,23 @@ function saveServiceFromModal() {
     const context = document.getElementById('modalContext').value;
     const serviceType = document.getElementById('modalServiceType').value;
     const isManual = ['Consumable', 'Transport'].includes(serviceType);
+    const isTravel = serviceType === 'Travel';
+
+    // Helper to get manual data based on type
+    const getManualData = () => {
+        if (isTravel) {
+            const km = parseFloat(document.getElementById('modalTravelKm').value) || 0;
+            return {
+                description: `Travel: ${km} km`,
+                cost: km * 1.00 // Fixed rate $1/km
+            };
+        } else {
+            return {
+                description: serviceType + ': ' + document.getElementById('modalManualDescription').value,
+                cost: parseFloat(document.getElementById('modalManualCost').value) || 0
+            };
+        }
+    };
 
     if (context === 'edit-instance') {
         const id = document.getElementById('modalServiceId').value;
@@ -448,12 +503,13 @@ function saveServiceFromModal() {
         if(instance) {
             deleteServiceInstance(id, false); 
             
-            if(isManual) {
+            if(isManual || isTravel) {
+                const manualData = getManualData();
                 appState.manualServices.push({
                     id: instance.type === 'manual' ? instance.serviceId : `manual_${appState.nextManualServiceId++}`,
                     date: calcFormatDate(instance.date),
-                    description: serviceType + ': ' + document.getElementById('modalManualDescription').value,
-                    cost: parseFloat(document.getElementById('modalManualCost').value)
+                    description: manualData.description,
+                    cost: manualData.cost
                 });
             } else {
                  appState.manualServices.push({
@@ -468,12 +524,13 @@ function saveServiceFromModal() {
             }
         }
     } else if (context === 'daily-one-off') {
-        if (isManual) {
+        if (isManual || isTravel) {
+             const manualData = getManualData();
              appState.manualServices.push({
                 id: `manual_${appState.nextManualServiceId++}`,
                 date: appState.selectedDateStr,
-                description: serviceType + ': ' + document.getElementById('modalManualDescription').value,
-                cost: parseFloat(document.getElementById('modalManualCost').value)
+                description: manualData.description,
+                cost: manualData.cost
             });
         } else {
             appState.manualServices.push({
@@ -487,7 +544,8 @@ function saveServiceFromModal() {
             });
         }
     } else {
-        const slotData = {
+        // WEEKLY SLOT LOGIC
+        let slotData = {
             day: document.getElementById('modalSlotDay').value,
             startTime: document.getElementById('modalStartTime').value,
             endTime: document.getElementById('modalEndTime').value,
@@ -495,6 +553,14 @@ function saveServiceFromModal() {
             costDivider: parseFloat(document.getElementById('modalRatio').value) || 1,
             overrideRate: parseFloat(document.getElementById('modalRate').value) || null
         };
+        
+        if (isTravel) {
+            // For weekly Travel, we store the KM
+            slotData.km = parseFloat(document.getElementById('modalTravelKm').value) || 0;
+            // Ensure costDivider is 1 (doesn't apply to KM usually, but safe default)
+            slotData.costDivider = 1;
+        }
+        
         const id = document.getElementById('modalServiceId').value;
         if(id) {
             const index = appState.weeklyScheduleSlots.findIndex(s => s.id === id);
@@ -564,15 +630,23 @@ function setupMultiDayListeners() {
         document.getElementById('multiDayFrequency').value = 'weekly';
         document.getElementById('multiDayRate').value = '';
         document.getElementById('multiDayRatio').value = '1';
+        document.getElementById('multiDayKm').value = '';
         document.querySelectorAll('#multiDaySelector .day-checkbox').forEach(cb => cb.checked = false);
         document.getElementById('multiDayStartTime').disabled = false;
         document.getElementById('multiDayEndTime').disabled = false;
+        // Reset visibility
+        document.getElementById('multiDayRatioGroup').classList.remove('hidden');
+        document.getElementById('multiDayKmGroup').classList.add('hidden');
     });
 
     document.getElementById('multiDayServiceType').addEventListener('change', (e) => {
+        const type = e.target.value;
         const startEl = document.getElementById('multiDayStartTime');
         const endEl = document.getElementById('multiDayEndTime');
-        if (e.target.value === 'Night-Time Sleepover') {
+        const ratioGroup = document.getElementById('multiDayRatioGroup');
+        const kmGroup = document.getElementById('multiDayKmGroup');
+
+        if (type === 'Night-Time Sleepover') {
             startEl.value = '22:00';
             endEl.value = '06:00';
             startEl.disabled = true;
@@ -580,6 +654,14 @@ function setupMultiDayListeners() {
         } else {
             startEl.disabled = false;
             endEl.disabled = false;
+        }
+
+        if (type === 'Travel') {
+            ratioGroup.classList.add('hidden');
+            kmGroup.classList.remove('hidden');
+        } else {
+            ratioGroup.classList.remove('hidden');
+            kmGroup.classList.add('hidden');
         }
     });
 
@@ -589,6 +671,7 @@ function setupMultiDayListeners() {
         const type = document.getElementById('multiDayServiceType').value;
         const freq = document.getElementById('multiDayFrequency').value;
         const checkBoxes = document.querySelectorAll('#multiDaySelector input:checked');
+        const isTravel = type === 'Travel';
         
         if(!start || !end || checkBoxes.length === 0) {
             calcShowMessage("Please complete all fields");
@@ -603,8 +686,9 @@ function setupMultiDayListeners() {
                 endTime: end,
                 serviceType: type,
                 frequency: freq,
-                costDivider: parseFloat(document.getElementById('multiDayRatio').value) || 1,
+                costDivider: isTravel ? 1 : (parseFloat(document.getElementById('multiDayRatio').value) || 1),
                 overrideRate: parseFloat(document.getElementById('multiDayRate').value) || null,
+                km: isTravel ? (parseFloat(document.getElementById('multiDayKm').value) || 0) : 0,
                 exceptions: []
             });
         });
