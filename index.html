@@ -107,55 +107,91 @@
         </div>
     </div>
 
-    <!-- Global Touch Event Bridge for Selection Grids -->
+    <!-- Advanced Touch Event Emulator -->
     <script>
-        /**
-         * Enhanced touch-to-mouse bridge.
-         * Now targets any table cell (td) within the calculator content to support
-         * both weekly and daily schedules.
-         */
+        // Tracks the current element under the finger to simulate mouseover/out
+        let lastTouchTarget = null;
+        let isTouchDragging = false;
+
         document.addEventListener('touchstart', function(e) {
-            const cell = e.target.closest('td');
-            // Ensure we are inside the calculator content container
-            if (cell && document.getElementById('calculatorContentPlaceholder').contains(cell)) {
-                // Prevent default scrolling to allow the selection drag
+            // Check if touch starts on a schedulable cell (td in the content area)
+            const target = e.target;
+            const cell = target.closest('td');
+            const container = document.getElementById('calculatorContentPlaceholder');
+            
+            // Only activate if we are touching a table cell inside the calculator
+            if (cell && container && container.contains(cell)) {
+                isTouchDragging = true;
+                lastTouchTarget = target;
+                
+                // Prevent scrolling so the drag works naturally
                 e.preventDefault();
-                dispatchMappedEvent(e, 'mousedown');
+                
+                // Fire mousedown to start selection
+                fireMouseEvent('mousedown', target, e.changedTouches[0]);
             }
         }, { passive: false });
 
         document.addEventListener('touchmove', function(e) {
-            // If the app's core logic has marked the body as "dragging-selection", 
-            // continue converting touches to mouse moves.
-            if (document.body.classList.contains('dragging-selection')) {
-                e.preventDefault(); 
-                dispatchMappedEvent(e, 'mousemove');
+            if (!isTouchDragging) return;
+
+            e.preventDefault(); // Stop scrolling
+            
+            const touch = e.changedTouches[0];
+            // Find the actual element under the finger
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (target) {
+                // Always fire mousemove
+                fireMouseEvent('mousemove', target, touch);
+
+                // If we moved to a new element (e.g., from one cell to another)
+                if (target !== lastTouchTarget) {
+                    if (lastTouchTarget) {
+                        // Tell the old element the mouse left
+                        fireMouseEvent('mouseout', lastTouchTarget, touch);
+                        fireMouseEvent('mouseleave', lastTouchTarget, touch);
+                    }
+                    // Tell the new element the mouse entered
+                    fireMouseEvent('mouseover', target, touch);
+                    fireMouseEvent('mouseenter', target, touch);
+                    lastTouchTarget = target;
+                }
             }
         }, { passive: false });
 
         document.addEventListener('touchend', function(e) {
-            if (document.body.classList.contains('dragging-selection')) {
-                dispatchMappedEvent(e, 'mouseup');
+            if (!isTouchDragging) return;
+            
+            isTouchDragging = false;
+            // Fire mouseup to end selection
+            if (lastTouchTarget) {
+                fireMouseEvent('mouseup', lastTouchTarget, e.changedTouches[0]);
             }
+            lastTouchTarget = null;
         }, { passive: false });
 
-        function dispatchMappedEvent(touchEvent, mouseType) {
-            const touch = touchEvent.changedTouches[0];
-            // Find the element actually at the touch point for 'move' events
-            const target = mouseType === 'mousemove' 
-                ? document.elementFromPoint(touch.clientX, touch.clientY) 
-                : touchEvent.target;
+        document.addEventListener('touchcancel', function(e) {
+            if (!isTouchDragging) return;
+            isTouchDragging = false;
+            if (lastTouchTarget) {
+                fireMouseEvent('mouseup', lastTouchTarget, e.changedTouches[0]);
+            }
+            lastTouchTarget = null;
+        });
 
-            if (!target) return;
-
-            const mouseEvent = new MouseEvent(mouseType, {
+        // Helper to construct and dispatch full MouseEvents
+        function fireMouseEvent(type, target, touch) {
+            const mouseEvent = new MouseEvent(type, {
                 bubbles: true,
                 cancelable: true,
                 view: window,
                 clientX: touch.clientX,
                 clientY: touch.clientY,
                 screenX: touch.screenX,
-                screenY: touch.screenY
+                screenY: touch.screenY,
+                buttons: 1, // Critical: simulates the Left Mouse Button being held down
+                button: 0
             });
             target.dispatchEvent(mouseEvent);
         }
