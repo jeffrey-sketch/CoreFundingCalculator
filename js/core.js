@@ -60,6 +60,9 @@ function calculateAndCreateInstance(brokenService, date, type, baseId) {
     let cost;
     if (rateInfo.unit === 'night') {
         cost = rateInfo.rate / brokenService.costDivider;
+    } else if (rateInfo.unit === 'km') {
+        // Handle per-KM cost (use km from service object if available)
+        cost = (brokenService.km || 0) * rateInfo.rate;
     } else {
         cost = (durationHours * rateInfo.rate) / brokenService.costDivider;
     }
@@ -69,13 +72,18 @@ function calculateAndCreateInstance(brokenService, date, type, baseId) {
         ? serviceTypeMap[serviceKey]
         : serviceKey;
 
+    let detailsText = `${brokenService.startTime}-${brokenService.endTime} (${durationHours.toFixed(2)} hrs)`;
+    if (rateInfo.unit === 'km') {
+        detailsText = `${brokenService.startTime}-${brokenService.endTime} (${brokenService.km || 0} km)`;
+    }
+
     return {
         instanceId: `inst_${type === 'weekly' ? 'w' : 'm'}_${baseId}_${appState.allServiceInstances.length}`,
         serviceId: baseId,
         type: type,
         date: new Date(date),
         description: description,
-        details: `${brokenService.startTime}-${brokenService.endTime} (${durationHours.toFixed(2)} hrs)`,
+        details: detailsText,
         rate: `${formatNumber(rateInfo.rate, true)}/${rateInfo.unit || 'hr'}`,
         cost: cost,
         rateType: rateInfo.rateType,
@@ -341,6 +349,16 @@ function generateAllServiceInstances() {
                      }
                 });
             } else {
+                 // Try to determine rate for display purposes
+                 let rateDisplay = 'N/A';
+                 let type = manualService.description.split(':')[0]; // e.g. "Travel" from "Travel: 50km"
+                 
+                 // Access rates from config via global object
+                 const currentRates = serviceDate < rateChangeDate ? ratesPre20250701 : ratesPost20250701;
+                 if (currentRates[type] && currentRates[type].Any) {
+                    rateDisplay = '$' + currentRates[type].Any.rate.toFixed(2) + '/' + currentRates[type].Any.unit;
+                 }
+
                  appState.allServiceInstances.push({
                     instanceId: `inst_m_${manualService.id}`,
                     serviceId: manualService.id,
@@ -348,7 +366,7 @@ function generateAllServiceInstances() {
                     date: serviceDate,
                     description: manualService.description,
                     details: 'One-off cost',
-                    rate: 'N/A',
+                    rate: rateDisplay,
                     cost: manualService.cost,
                     rateType: 'Manual',
                     ratio: 'N/A'
