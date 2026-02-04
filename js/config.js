@@ -14,7 +14,8 @@ const ratesPre20250701 = {
     "Night-Time Sleepover": { "Any": { rate: 286.56, unit: "night" } },
     "House Cleaning": { "Any": { rate: 56.23, unit: "hour" } },
     "Increased Social and Community Access": { "Any": { rate: 77.00, unit: "hour" } },
-    "Yard Maintenance": { "Any": { rate: 55.21, unit: "hour" } }
+    "Yard Maintenance": { "Any": { rate: 55.21, unit: "hour" } },
+    "Travel": { "Any": { rate: 1.00, unit: "km" } }
 };
 
 // Post-2025 Rates
@@ -30,7 +31,8 @@ const ratesPost20250701 = {
     "Night-Time Sleepover": { "Any": { rate: 297.60, unit: "night" } },
     "House Cleaning": { "Any": { rate: 58.03, unit: "hour" } },
     "Increased Social and Community Access": { "Any": { rate: 80.06, unit: "hour" } },
-    "Yard Maintenance": { "Any": { rate: 56.98, unit: "hour" } }
+    "Yard Maintenance": { "Any": { rate: 56.98, unit: "hour" } },
+    "Travel": { "Any": { rate: 1.00, unit: "km" } }
 };
 
 // Holidays
@@ -62,7 +64,8 @@ const serviceTypeMap = {
     "Night-Time Sleepover": "Night Sleepover",
     "House Cleaning": "House Cleaning",
     "Increased Social and Community Access": "Increased Social",
-    "Yard Maintenance": "Yard Maintenance"
+    "Yard Maintenance": "Yard Maintenance",
+    "Travel": "Travel"
 };
 
 // Colors
@@ -73,7 +76,8 @@ const serviceTypeColors = {
     "Increased Social and Community Access": "bg-purple-500",
     "Yard Maintenance": "bg-yellow-500",
     "Transport": "bg-gray-500",
-    "Consumable": "bg-gray-500"
+    "Consumable": "bg-gray-500",
+    "Travel": "bg-orange-500"
 };
 
 // The Main Application State
