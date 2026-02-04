@@ -189,6 +189,7 @@ function buildCalculatorHTML(placeholder) {
                             <option value="Yard Maintenance">Yard Maintenance</option>
                             <option value="Consumable">Consumable</option>
                             <option value="Transport">Transport</option>
+                            <option value="Travel">Travel ($1.00/km)</option>
                         </select>
                     </div>
 
@@ -218,6 +219,7 @@ function buildCalculatorHTML(placeholder) {
                         </div>
                     </div>
 
+                    <!-- Manual Fields (Consumable/Transport) -->
                     <div id="modalManualFields" style="display: none;" class="space-y-4">
                          <div class="grid grid-cols-2 gap-4">
                             <div class="col-span-2">
@@ -230,6 +232,27 @@ function buildCalculatorHTML(placeholder) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Travel Fields (Travel) -->
+                    <div id="modalTravelFields" style="display: none;" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label for="modalTravelKm" class="block text-sm font-semibold text-gray-700 mb-2">Distance (km)</label>
+                                <div class="relative">
+                                     <input type="number" step="0.1" id="modalTravelKm" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-lg" placeholder="0">
+                                     <span class="absolute right-4 top-3.5 text-gray-400 text-sm font-bold">km</span>
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Calculated Cost ($1.00/km)</label>
+                                 <div class="p-4 bg-orange-50 border border-orange-100 rounded-xl text-orange-800 font-bold text-xl flex justify-between items-center">
+                                    <span id="modalTravelCostDisplay">$0.00</span>
+                                    <i class="fas fa-car text-orange-200"></i>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
                     <button id="deleteServiceBtn" class="text-red-500 hover:text-red-700 font-semibold px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">Delete</button>
@@ -262,7 +285,14 @@ function buildCalculatorHTML(placeholder) {
                             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4"> 
                                 <div class="col-span-2 lg:col-span-2">
                                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Service Type</label>
-                                    <select id="multiDayServiceType" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white"><option value="Self-Care Activities/Social and Community Access">Self-Care/Social Access</option><option value="Night-Time Sleepover">Night Sleepover</option><option value="House Cleaning">House Cleaning</option><option value="Increased Social and Community Access">Increased Social Access</option><option value="Yard Maintenance">Yard Maintenance</option></select>
+                                    <select id="multiDayServiceType" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white">
+                                        <option value="Self-Care Activities/Social and Community Access">Self-Care/Social Access</option>
+                                        <option value="Night-Time Sleepover">Night Sleepover</option>
+                                        <option value="House Cleaning">House Cleaning</option>
+                                        <option value="Increased Social and Community Access">Increased Social Access</option>
+                                        <option value="Yard Maintenance">Yard Maintenance</option>
+                                        <option value="Travel">Travel</option>
+                                    </select>
                                 </div>
                                 <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Start</label><input type="time" id="multiDayStartTime" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" step="900"></div>
                                 <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">End</label><input type="time" id="multiDayEndTime" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" step="900"></div>
@@ -274,14 +304,20 @@ function buildCalculatorHTML(placeholder) {
                                         <option value="monthly">Monthly</option>
                                     </select>
                                 </div>
-                                <!-- RESTORED RATIO SELECTOR -->
-                                <div>
+                                
+                                <!-- Toggleable KM vs Ratio -->
+                                <div id="multiDayRatioGroup">
                                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Ratio</label>
                                     <select id="multiDayRatio" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                                         ${[1,2,3,4,5,6,7].map(n => `<option value="${n}">1:${n}</option>`).join('')}
                                         <option value="0.5">2:1</option>
                                     </select>
                                 </div>
+                                <div id="multiDayKmGroup" class="hidden">
+                                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">KM</label>
+                                     <input type="number" id="multiDayKm" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="0" step="0.1">
+                                </div>
+
                                 <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rate ($)</label><input type="number" step="0.01" id="multiDayRate" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="Auto"></div>
                             </div>
                             
