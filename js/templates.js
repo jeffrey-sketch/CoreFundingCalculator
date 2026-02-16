@@ -49,18 +49,26 @@ function buildCalculatorHTML(placeholder) {
                              </div>
                          </div>
                          <div class="group">
-                             <label for="releasePeriod" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Release Interval</label>
+                             <label for="otherFundingExpenses" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Less: Other Expenses</label>
                              <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-clock"></i></span>
-                                <select id="releasePeriod" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 appearance-none focus:bg-white">
-                                    <option value="0" selected>Full Period (No Breakdown)</option>
-                                    <option value="1">Monthly</option>
-                                    <option value="3">Quarterly (3 Months)</option>
-                                    <option value="6">Biannually (6 Months)</option>
-                                    <option value="12">Annually (12 Months)</option>
-                                </select>
-                                <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down"></i></span>
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-minus-circle"></i></span>
+                                <input type="number" id="otherFundingExpenses" class="w-full pl-10 p-3 bg-red-50 border border-red-100 rounded-xl text-red-800 font-bold text-lg focus:bg-white transition-colors" placeholder="0.00" step="0.01">
                              </div>
+                         </div>
+                     </div>
+                     
+                     <div class="group">
+                         <label for="releasePeriod" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Release Interval</label>
+                         <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-clock"></i></span>
+                            <select id="releasePeriod" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 appearance-none focus:bg-white">
+                                <option value="0" selected>Full Period (No Breakdown)</option>
+                                <option value="1">Monthly</option>
+                                <option value="3">Quarterly (3 Months)</option>
+                                <option value="6">Biannually (6 Months)</option>
+                                <option value="12">Annually (12 Months)</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down"></i></span>
                          </div>
                      </div>
                 </div>
@@ -91,6 +99,11 @@ function buildCalculatorHTML(placeholder) {
                     </div>
                 </div>
                 
+                <div class="flex items-center mb-4 px-1">
+                    <input type="checkbox" id="includePublicHolidays" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 transition-colors cursor-pointer" checked>
+                    <label for="includePublicHolidays" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer">Include Public Holidays</label>
+                </div>
+
                 <div id="durationDisplay" class="text-center text-sm font-medium text-indigo-600 bg-indigo-50 py-2 rounded-lg mb-4"></div>
 
                 <!-- Small Calendar Preview Area -->
