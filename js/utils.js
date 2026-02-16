@@ -23,14 +23,6 @@ function calcFormatDate(dateObj) {
     return `${year}-${month}-${day}`;
 }
 
-function calcFormatDisplayDate(dateString) {
-    if (!dateString || !dateString.includes('-')) return "Invalid Date";
-    const parts = dateString.split('-');
-    if (parts.length !== 3) return "Invalid Date";
-    const [year, month, day] = parts;
-    return `${day}/${month}/${year}`;
-}
-
 function calcShowMessage(message) {
     const overlay = document.getElementById('calcMessageBoxOverlay');
     const text = document.getElementById('calcMessageBoxText');
@@ -40,6 +32,14 @@ function calcShowMessage(message) {
     } else {
         console.warn("Message box elements not found, using console:", message);
     }
+}
+
+function calcFormatDisplayDate(dateString) {
+    if (!dateString || !dateString.includes('-')) return "Invalid Date";
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return "Invalid Date";
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
 }
 
 function debounce(func, delay) {
@@ -89,6 +89,9 @@ function exportToPdf() {
         const participantName = document.getElementById('participantName').value || 'N/A';
         const ndisNumber = document.getElementById('ndisNumber').value || 'N/A';
         const totalFundingVal = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+        const otherExpensesVal = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+        const netFundingVal = Math.max(0, totalFundingVal - otherExpensesVal);
+        
         const releasePeriodEl = document.getElementById('releasePeriod');
         const releasePeriodText = releasePeriodEl.options[releasePeriodEl.selectedIndex].text;
         const startDateStr = document.getElementById('periodStartDate').value;
@@ -115,9 +118,16 @@ function exportToPdf() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
         
-        doc.text(`Available Core Funding: ${formatNumber(totalFundingVal, true)}`, 14, yPos);
-        doc.text(`Funding Release Period: ${releasePeriodText}`, 105, yPos);
-        yPos += 7;
+        doc.text(`Total Core Funding: ${formatNumber(totalFundingVal, true)}`, 14, yPos);
+        doc.text(`Less: Other Expenses: ${formatNumber(otherExpensesVal, true)}`, 105, yPos);
+        yPos += 6;
+        doc.setFont("helvetica", "bold");
+        doc.text(`Net Available Funding: ${formatNumber(netFundingVal, true)}`, 14, yPos);
+        doc.setFont("helvetica", "normal");
+        yPos += 6;
+        
+        doc.text(`Funding Release Period: ${releasePeriodText}`, 14, yPos);
+        yPos += 6;
         doc.text(`Plan Start Date: ${calcFormatDisplayDate(startDateStr)}`, 14, yPos);
         doc.text(`Plan End Date: ${calcFormatDisplayDate(endDateStr)}`, 105, yPos);
         yPos += 10;
@@ -458,7 +468,7 @@ function exportToPdf() {
         yPos = doc.lastAutoTable.finalY + 10;
 
         if (yPos > 270) doc.addPage();
-        const grandRemaining = totalFundingVal - overallTotalCost;
+        const grandRemaining = netFundingVal - overallTotalCost;
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.text("Overall Remaining Funding:", 14, yPos);
