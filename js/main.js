@@ -83,7 +83,9 @@ function setupEventListeners() {
     const periodStartDateEl = document.getElementById('periodStartDate');
     const periodEndDateEl = document.getElementById('periodEndDate');
     const totalFundingEl = document.getElementById('totalAvailableFunding');
+    const otherExpensesEl = document.getElementById('otherFundingExpenses');
     const releasePeriodEl = document.getElementById('releasePeriod');
+    const includePublicHolidaysEl = document.getElementById('includePublicHolidays');
     
     // --- Debounced Updates ---
     const debouncedGenerate = debounce(() => {
@@ -101,7 +103,11 @@ function setupEventListeners() {
     });
     periodEndDateEl.addEventListener('change', debouncedGenerate);
     totalFundingEl.addEventListener('input', debouncedGenerate);
+    otherExpensesEl.addEventListener('input', debouncedGenerate);
     releasePeriodEl.addEventListener('change', debouncedGenerate);
+    if (includePublicHolidaysEl) {
+        includePublicHolidaysEl.addEventListener('change', debouncedGenerate);
+    }
 
     // --- Buttons ---
     document.getElementById('calcMessageBoxButton').addEventListener('click', () => {
@@ -864,9 +870,11 @@ function saveCalculatorState() {
         participantName: document.getElementById('participantName').value,
         ndisNumber: document.getElementById('ndisNumber').value,
         totalAvailableFunding: document.getElementById('totalAvailableFunding').value,
+        otherFundingExpenses: document.getElementById('otherFundingExpenses').value,
         releasePeriod: document.getElementById('releasePeriod').value,
         periodStartDate: document.getElementById('periodStartDate').value,
-        periodEndDate: document.getElementById('periodEndDate').value
+        periodEndDate: document.getElementById('periodEndDate').value,
+        includePublicHolidays: document.getElementById('includePublicHolidays') ? document.getElementById('includePublicHolidays').checked : true
     };
 
     const saveData = {
@@ -901,9 +909,11 @@ function loadCalculatorState(event) {
                 if(data.formData.participantName !== undefined) document.getElementById('participantName').value = data.formData.participantName;
                 if(data.formData.ndisNumber !== undefined) document.getElementById('ndisNumber').value = data.formData.ndisNumber;
                 if(data.formData.totalAvailableFunding !== undefined) document.getElementById('totalAvailableFunding').value = data.formData.totalAvailableFunding;
+                if(data.formData.otherFundingExpenses !== undefined) document.getElementById('otherFundingExpenses').value = data.formData.otherFundingExpenses;
                 if(data.formData.releasePeriod !== undefined) document.getElementById('releasePeriod').value = data.formData.releasePeriod;
                 if(data.formData.periodStartDate !== undefined) document.getElementById('periodStartDate').value = data.formData.periodStartDate;
                 if(data.formData.periodEndDate !== undefined) document.getElementById('periodEndDate').value = data.formData.periodEndDate;
+                if(data.formData.includePublicHolidays !== undefined) document.getElementById('includePublicHolidays').checked = data.formData.includePublicHolidays;
             }
 
             appState.weeklyScheduleSlots = data.weeklyScheduleSlots || [];
