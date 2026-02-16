@@ -257,7 +257,9 @@ function renderPeriods() {
 function renderSummaryBox() {
     const container = document.getElementById('summaryBoxContainer');
     const grandCell = document.getElementById('grandRemainingFundingCell');
-    const totalFunding = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const totalFundingInput = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const otherExpenses = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+    const totalFunding = Math.max(0, totalFundingInput - otherExpenses);
 
     if (!container) return; // Guard clause if container missing
     container.innerHTML = '';
