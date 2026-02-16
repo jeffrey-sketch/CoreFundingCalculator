@@ -117,7 +117,10 @@ function updateDurationDisplay() {
 
 function generatePeriods() {
     updateDurationDisplay();
-    const totalFunding = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const totalFundingInput = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const otherExpenses = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+    const totalFunding = Math.max(0, totalFundingInput - otherExpenses);
+    
     const startDateStr = document.getElementById('periodStartDate').value;
     const endDateStr = document.getElementById('periodEndDate').value;
     const releasePeriodVal = document.getElementById('releasePeriod').value;
@@ -175,7 +178,10 @@ function generatePeriods() {
 
 // --- NEW: Funding Redistribution Logic ---
 function updatePeriodFunding(periodId, newAmount) {
-    const totalFunding = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const totalFundingInput = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
+    const otherExpenses = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+    const totalFunding = Math.max(0, totalFundingInput - otherExpenses);
+
     const period = appState.calcPeriods.find(p => p.id === periodId);
     
     if (!period) return;
@@ -255,6 +261,9 @@ function generateAllServiceInstances() {
     appState.allServiceInstances = [];
     const startDateStr = document.getElementById('periodStartDate').value;
     const endDateStr = document.getElementById('periodEndDate').value;
+    
+    // 1. Get Public Holiday Checkbox state
+    const includePublicHolidays = document.getElementById('includePublicHolidays') ? document.getElementById('includePublicHolidays').checked : true;
 
     if (!startDateStr || !endDateStr) return;
 
@@ -265,7 +274,7 @@ function generateAllServiceInstances() {
         const brokenDownServices = breakdownService(slot);
 
         brokenDownServices.forEach(brokenService => {
-            // 1. Find the first occurrence of the day
+            // 2. Find the first occurrence of the day
             let firstOccurrence = null;
             let tempDate = new Date(overallStartDate);
             while(tempDate <= overallEndDate) {
@@ -278,23 +287,29 @@ function generateAllServiceInstances() {
 
             if (!firstOccurrence) return;
 
-            // 2. Get frequency from slot (default to 'weekly')
+            // 3. Get frequency from slot (default to 'weekly')
             const frequency = slot.frequency || 'weekly';
 
-            // 3. Iterate from the first occurrence based on frequency
+            // 4. Iterate from the first occurrence based on frequency
             let currentDateIterator = firstOccurrence;
             while(currentDateIterator <= overallEndDate) {
                 const formattedDate = calcFormatDate(currentDateIterator);
 
                 // Check exceptions
                 if (!(brokenService.exceptions && brokenService.exceptions.includes(formattedDate))) {
-                    const instance = calculateAndCreateInstance(brokenService, currentDateIterator, 'weekly', slot.id);
-                    if (instance) {
-                        appState.allServiceInstances.push(instance);
+                    
+                    // 5. Check Public Holiday Logic
+                    const isPublicHoliday = calcIsPublicHoliday(currentDateIterator);
+                    
+                    if (includePublicHolidays || !isPublicHoliday) {
+                        const instance = calculateAndCreateInstance(brokenService, currentDateIterator, 'weekly', slot.id);
+                        if (instance) {
+                            appState.allServiceInstances.push(instance);
+                        }
                     }
                 }
 
-                // 4. Increment the date based on frequency
+                // 6. Increment the date based on frequency
                 switch (frequency) {
                     case 'weekly':
                         currentDateIterator.setDate(currentDateIterator.getDate() + 7);
