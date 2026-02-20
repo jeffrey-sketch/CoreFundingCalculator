@@ -40,36 +40,41 @@ function buildCalculatorHTML(placeholder) {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                          <div class="group">
                              <label for="totalAvailableFunding" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Total Core Funding</label>
                              <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-dollar-sign"></i></span>
-                                <input type="number" id="totalAvailableFunding" class="w-full pl-10 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 font-bold text-lg focus:bg-white transition-colors" placeholder="0.00" step="0.01">
+                                <input type="text" id="totalAvailableFunding" class="currency-input w-full pl-10 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 font-bold text-lg focus:bg-white transition-colors" placeholder="0.00">
                              </div>
                          </div>
                          <div class="group">
-                             <label for="otherFundingExpenses" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Less: Other Expenses</label>
+                             <label for="releasePeriod" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Release Interval</label>
                              <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-minus-circle"></i></span>
-                                <input type="number" id="otherFundingExpenses" class="w-full pl-10 p-3 bg-red-50 border border-red-100 rounded-xl text-red-800 font-bold text-lg focus:bg-white transition-colors" placeholder="0.00" step="0.01">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-clock"></i></span>
+                                <select id="releasePeriod" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 appearance-none focus:bg-white">
+                                    <option value="0" selected>Full Period (No Breakdown)</option>
+                                    <option value="1">Monthly</option>
+                                    <option value="3">Quarterly (3 Months)</option>
+                                    <option value="6">Biannually (6 Months)</option>
+                                    <option value="12">Annually (12 Months)</option>
+                                </select>
+                                <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down"></i></span>
                              </div>
                          </div>
                      </div>
                      
-                     <div class="group">
-                         <label for="releasePeriod" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">Release Interval</label>
-                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-clock"></i></span>
-                            <select id="releasePeriod" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 appearance-none focus:bg-white">
-                                <option value="0" selected>Full Period (No Breakdown)</option>
-                                <option value="1">Monthly</option>
-                                <option value="3">Quarterly (3 Months)</option>
-                                <option value="6">Biannually (6 Months)</option>
-                                <option value="12">Annually (12 Months)</option>
-                            </select>
-                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down"></i></span>
-                         </div>
+                     <!-- Other Expenses Dynamic Section -->
+                     <div class="mb-5 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                          <div class="flex justify-between items-center mb-3">
+                              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Other Expenses</label>
+                              <button id="addOtherExpenseBtn" class="px-3 py-1.5 bg-white border border-gray-200 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"><i class="fas fa-plus mr-1"></i>Add Service</button>
+                          </div>
+                          <div id="otherExpensesContainer" class="space-y-3"></div>
+                          <div class="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                              <span class="text-sm font-semibold text-gray-500">Total Other Expenses</span>
+                              <span class="text-base font-bold text-red-600">-$<span id="totalOtherExpensesDisplay">0.00</span></span>
+                          </div>
                      </div>
                 </div>
             </div>
@@ -227,7 +232,7 @@ function buildCalculatorHTML(placeholder) {
                             </div>
                             <div>
                                 <label for="modalRate" class="block text-sm font-semibold text-gray-700 mb-2">Custom Rate ($)</label>
-                                <input type="number" step="0.01" id="modalRate" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" placeholder="Auto">
+                                <input type="text" id="modalRate" class="currency-input w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" placeholder="Auto">
                             </div>
                         </div>
                     </div>
@@ -241,7 +246,7 @@ function buildCalculatorHTML(placeholder) {
                             </div>
                             <div class="col-span-2">
                                 <label for="modalManualCost" class="block text-sm font-semibold text-gray-700 mb-2">Total Cost ($)</label>
-                                <input type="number" step="0.01" id="modalManualCost" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800" placeholder="0.00">
+                                <input type="text" id="modalManualCost" class="currency-input w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-gray-800" placeholder="0.00">
                             </div>
                         </div>
                     </div>
@@ -331,7 +336,7 @@ function buildCalculatorHTML(placeholder) {
                                      <input type="number" id="multiDayKm" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="0" step="0.1">
                                 </div>
 
-                                <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rate ($)</label><input type="number" step="0.01" id="multiDayRate" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="Auto"></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rate ($)</label><input type="text" id="multiDayRate" class="currency-input w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="Auto"></div>
                             </div>
                             
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
