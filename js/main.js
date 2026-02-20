@@ -55,6 +55,7 @@ function addOtherExpenseRow(type = 'Consumable', amount = '') {
         <select class="expense-type w-1/2 p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
             <option value="Consumable" ${type === 'Consumable' ? 'selected' : ''}>Consumable</option>
             <option value="Transport" ${type === 'Transport' ? 'selected' : ''}>Transport</option>
+            <option value="Home and Living" ${type === 'Home and Living' ? 'selected' : ''}>Home and Living</option>
             <option value="Others" ${type === 'Others' ? 'selected' : ''}>Others</option>
         </select>
         <div class="relative w-1/2 flex items-center">
