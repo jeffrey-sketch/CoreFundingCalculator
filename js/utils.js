@@ -15,6 +15,29 @@ function formatNumber(value, isCurrency = false, decimalPlaces = 2) {
     return isCurrency ? `$${formattedNum}` : formattedNum;
 }
 
+function parseCurrencyString(val) {
+    if (!val) return 0;
+    const parsed = parseFloat(String(val).replace(/,/g, ''));
+    return isNaN(parsed) ? 0 : parsed;
+}
+
+function handleCurrencyInput(e) {
+    let val = e.target.value;
+    // Strip non-digits and non-decimals
+    val = val.replace(/[^\d.]/g, '');
+    const parts = val.split('.');
+    // Keep only the first decimal point
+    if (parts.length > 2) {
+        parts.pop();
+        val = parts.join('.');
+    }
+    // Add commas to the integer part
+    if (parts[0]) {
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    e.target.value = parts.join('.');
+}
+
 function calcFormatDate(dateObj) {
     if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj)) { return null; }
     const year = dateObj.getFullYear();
@@ -88,8 +111,8 @@ function exportToPdf() {
         // Retrieve DOM Elements directly for simple text fields
         const participantName = document.getElementById('participantName').value || 'N/A';
         const ndisNumber = document.getElementById('ndisNumber').value || 'N/A';
-        const totalFundingVal = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
-        const otherExpensesVal = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+        const totalFundingVal = parseCurrencyString(document.getElementById('totalAvailableFunding').value);
+        const otherExpensesVal = getTotalOtherExpenses();
         const netFundingVal = Math.max(0, totalFundingVal - otherExpensesVal);
         
         const releasePeriodEl = document.getElementById('releasePeriod');
