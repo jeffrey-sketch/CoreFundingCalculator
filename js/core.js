@@ -91,6 +91,22 @@ function calculateAndCreateInstance(brokenService, date, type, baseId) {
     };
 }
 
+// --- DYNAMIC OTHER EXPENSES CALCULATION ---
+
+function getTotalOtherExpenses() {
+    const amountInputs = document.querySelectorAll('.expense-amount');
+    let total = 0;
+    if (amountInputs) {
+        amountInputs.forEach(input => {
+            const val = parseCurrencyString(input.value);
+            total += val;
+        });
+    }
+    const display = document.getElementById('totalOtherExpensesDisplay');
+    if (display) display.textContent = formatNumber(total, false);
+    return total;
+}
+
 // --- PERIOD GENERATION ---
 
 function updateDurationDisplay() {
@@ -117,8 +133,8 @@ function updateDurationDisplay() {
 
 function generatePeriods() {
     updateDurationDisplay();
-    const totalFundingInput = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
-    const otherExpenses = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+    const totalFundingInput = parseCurrencyString(document.getElementById('totalAvailableFunding').value);
+    const otherExpenses = getTotalOtherExpenses();
     const totalFunding = Math.max(0, totalFundingInput - otherExpenses);
     
     const startDateStr = document.getElementById('periodStartDate').value;
@@ -176,10 +192,10 @@ function generatePeriods() {
     }
 }
 
-// --- NEW: Funding Redistribution Logic ---
+// --- Funding Redistribution Logic ---
 function updatePeriodFunding(periodId, newAmount) {
-    const totalFundingInput = parseFloat(document.getElementById('totalAvailableFunding').value) || 0;
-    const otherExpenses = parseFloat(document.getElementById('otherFundingExpenses').value) || 0;
+    const totalFundingInput = parseCurrencyString(document.getElementById('totalAvailableFunding').value);
+    const otherExpenses = getTotalOtherExpenses();
     const totalFunding = Math.max(0, totalFundingInput - otherExpenses);
 
     const period = appState.calcPeriods.find(p => p.id === periodId);
@@ -207,8 +223,6 @@ function updatePeriodFunding(periodId, newAmount) {
     } else {
         // If NO auto periods left (all manual), the sum might not match Total Funding.
         // We generally allow this state as the user might be building up to a new total.
-        // Or we could strictly enforce by updating the Total input? 
-        // For now, we leave it as is, but the "Remaining" calculations in UI will reflect the discrepancy.
     }
 }
 
