@@ -46,6 +46,46 @@ function initializeDarkMode() {
     }
 }
 
+// --- DYNAMIC OTHER EXPENSES ROWS ---
+function addOtherExpenseRow(type = 'Consumable', amount = '') {
+    const container = document.getElementById('otherExpensesContainer');
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 items-center other-expense-row bg-white p-2 rounded-lg border border-gray-200 shadow-sm';
+    row.innerHTML = `
+        <select class="expense-type w-1/2 p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+            <option value="Consumable" ${type === 'Consumable' ? 'selected' : ''}>Consumable</option>
+            <option value="Transport" ${type === 'Transport' ? 'selected' : ''}>Transport</option>
+            <option value="Others" ${type === 'Others' ? 'selected' : ''}>Others</option>
+        </select>
+        <div class="relative w-1/2 flex items-center">
+            <span class="absolute left-3 text-gray-400 font-medium z-10">$</span>
+            <input type="text" class="expense-amount currency-input w-full pl-7 p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none" placeholder="0.00" value="${amount}">
+        </div>
+        <button class="remove-expense-btn text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"><i class="fas fa-trash"></i></button>
+    `;
+    
+    const amountInput = row.querySelector('.expense-amount');
+    amountInput.addEventListener('input', (e) => {
+        handleCurrencyInput(e);
+        const event = new Event('expenseChanged', { bubbles: true });
+        amountInput.dispatchEvent(event);
+    });
+    
+    row.querySelector('.expense-type').addEventListener('change', () => {
+         const event = new Event('expenseChanged', { bubbles: true });
+         row.dispatchEvent(event);
+    });
+
+    row.querySelector('.remove-expense-btn').addEventListener('click', () => {
+        row.remove();
+        const event = new Event('expenseChanged', { bubbles: true });
+        container.dispatchEvent(event);
+    });
+
+    container.appendChild(row);
+}
+
+
 // --- CENTRAL RENDER FUNCTION ---
 function renderAll() {
     generateAllServiceInstances();
@@ -83,10 +123,18 @@ function setupEventListeners() {
     const periodStartDateEl = document.getElementById('periodStartDate');
     const periodEndDateEl = document.getElementById('periodEndDate');
     const totalFundingEl = document.getElementById('totalAvailableFunding');
-    const otherExpensesEl = document.getElementById('otherFundingExpenses');
     const releasePeriodEl = document.getElementById('releasePeriod');
     const includePublicHolidaysEl = document.getElementById('includePublicHolidays');
+    const addOtherExpenseBtn = document.getElementById('addOtherExpenseBtn');
+    const otherExpensesContainer = document.getElementById('otherExpensesContainer');
     
+    // Currency formatting to inputs dynamically loaded through modals etc.
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('currency-input') && !e.target.classList.contains('expense-amount') && e.target.id !== 'totalAvailableFunding') {
+            handleCurrencyInput(e);
+        }
+    });
+
     // --- Debounced Updates ---
     const debouncedGenerate = debounce(() => {
         generatePeriods();
@@ -102,8 +150,19 @@ function setupEventListeners() {
         debouncedGenerate();
     });
     periodEndDateEl.addEventListener('change', debouncedGenerate);
-    totalFundingEl.addEventListener('input', debouncedGenerate);
-    otherExpensesEl.addEventListener('input', debouncedGenerate);
+    
+    totalFundingEl.addEventListener('input', (e) => {
+        handleCurrencyInput(e);
+        debouncedGenerate();
+    });
+
+    addOtherExpenseBtn.addEventListener('click', () => {
+        addOtherExpenseRow();
+        debouncedGenerate();
+    });
+
+    otherExpensesContainer.addEventListener('expenseChanged', debouncedGenerate);
+    
     releasePeriodEl.addEventListener('change', debouncedGenerate);
     if (includePublicHolidaysEl) {
         includePublicHolidaysEl.addEventListener('change', debouncedGenerate);
@@ -414,7 +473,7 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             } else {
                 typeEl.value = instance.description.startsWith('Consumable') ? 'Consumable' : 'Transport';
                 document.getElementById('modalManualDescription').value = instance.description.split(': ')[1] || '';
-                document.getElementById('modalManualCost').value = instance.cost;
+                document.getElementById('modalManualCost').value = formatNumber(instance.cost, false);
             }
         } else {
             const longName = Object.keys(serviceTypeMap).find(key => serviceTypeMap[key] === instance.description) || instance.description;
@@ -448,7 +507,7 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             startEl.value = slot.startTime;
             endEl.value = slot.endTime;
             document.getElementById('modalRatio').value = slot.costDivider;
-            document.getElementById('modalRate').value = slot.overrideRate || '';
+            document.getElementById('modalRate').value = slot.overrideRate ? formatNumber(slot.overrideRate, false) : '';
             document.getElementById('deleteServiceBtn').style.display = 'inline-flex';
             
             // Populate Travel KM if available
@@ -498,7 +557,7 @@ function saveServiceFromModal() {
         } else {
             return {
                 description: serviceType + ': ' + document.getElementById('modalManualDescription').value,
-                cost: parseFloat(document.getElementById('modalManualCost').value) || 0
+                cost: parseCurrencyString(document.getElementById('modalManualCost').value)
             };
         }
     };
@@ -525,7 +584,7 @@ function saveServiceFromModal() {
                     startTime: document.getElementById('modalStartTime').value,
                     endTime: document.getElementById('modalEndTime').value,
                     costDivider: parseFloat(document.getElementById('modalRatio').value) || 1,
-                    overrideRate: parseFloat(document.getElementById('modalRate').value) || null
+                    overrideRate: parseCurrencyString(document.getElementById('modalRate').value) || null
                 });
             }
         }
@@ -546,7 +605,7 @@ function saveServiceFromModal() {
                 startTime: document.getElementById('modalStartTime').value,
                 endTime: document.getElementById('modalEndTime').value,
                 costDivider: parseFloat(document.getElementById('modalRatio').value) || 1,
-                overrideRate: parseFloat(document.getElementById('modalRate').value) || null
+                overrideRate: parseCurrencyString(document.getElementById('modalRate').value) || null
             });
         }
     } else {
@@ -557,7 +616,7 @@ function saveServiceFromModal() {
             endTime: document.getElementById('modalEndTime').value,
             serviceType: serviceType,
             costDivider: parseFloat(document.getElementById('modalRatio').value) || 1,
-            overrideRate: parseFloat(document.getElementById('modalRate').value) || null
+            overrideRate: parseCurrencyString(document.getElementById('modalRate').value) || null
         };
         
         if (isTravel) {
@@ -693,7 +752,7 @@ function setupMultiDayListeners() {
                 serviceType: type,
                 frequency: freq,
                 costDivider: isTravel ? 1 : (parseFloat(document.getElementById('multiDayRatio').value) || 1),
-                overrideRate: parseFloat(document.getElementById('multiDayRate').value) || null,
+                overrideRate: parseCurrencyString(document.getElementById('multiDayRate').value) || null,
                 km: isTravel ? (parseFloat(document.getElementById('multiDayKm').value) || 0) : 0,
                 exceptions: []
             });
@@ -866,11 +925,20 @@ function setupDailyDragAndDrop() {
 
 // --- SAVE / LOAD ---
 function saveCalculatorState() {
+    const otherExpenses = [];
+    document.querySelectorAll('.other-expense-row').forEach(row => {
+        const type = row.querySelector('.expense-type').value;
+        const amount = row.querySelector('.expense-amount').value;
+        if (amount) {
+            otherExpenses.push({ type, amount });
+        }
+    });
+
     const formData = {
         participantName: document.getElementById('participantName').value,
         ndisNumber: document.getElementById('ndisNumber').value,
         totalAvailableFunding: document.getElementById('totalAvailableFunding').value,
-        otherFundingExpenses: document.getElementById('otherFundingExpenses').value,
+        otherExpensesList: otherExpenses,
         releasePeriod: document.getElementById('releasePeriod').value,
         periodStartDate: document.getElementById('periodStartDate').value,
         periodEndDate: document.getElementById('periodEndDate').value,
@@ -909,11 +977,23 @@ function loadCalculatorState(event) {
                 if(data.formData.participantName !== undefined) document.getElementById('participantName').value = data.formData.participantName;
                 if(data.formData.ndisNumber !== undefined) document.getElementById('ndisNumber').value = data.formData.ndisNumber;
                 if(data.formData.totalAvailableFunding !== undefined) document.getElementById('totalAvailableFunding').value = data.formData.totalAvailableFunding;
-                if(data.formData.otherFundingExpenses !== undefined) document.getElementById('otherFundingExpenses').value = data.formData.otherFundingExpenses;
                 if(data.formData.releasePeriod !== undefined) document.getElementById('releasePeriod').value = data.formData.releasePeriod;
                 if(data.formData.periodStartDate !== undefined) document.getElementById('periodStartDate').value = data.formData.periodStartDate;
                 if(data.formData.periodEndDate !== undefined) document.getElementById('periodEndDate').value = data.formData.periodEndDate;
                 if(data.formData.includePublicHolidays !== undefined) document.getElementById('includePublicHolidays').checked = data.formData.includePublicHolidays;
+                
+                const container = document.getElementById('otherExpensesContainer');
+                if (container) {
+                    container.innerHTML = '';
+                    if (data.formData.otherExpensesList && Array.isArray(data.formData.otherExpensesList)) {
+                        data.formData.otherExpensesList.forEach(exp => {
+                            addOtherExpenseRow(exp.type, exp.amount);
+                        });
+                    } else if (data.formData.otherFundingExpenses) {
+                        // Backwards compatibility with old saves
+                        addOtherExpenseRow('Others', data.formData.otherFundingExpenses);
+                    }
+                }
             }
 
             appState.weeklyScheduleSlots = data.weeklyScheduleSlots || [];
