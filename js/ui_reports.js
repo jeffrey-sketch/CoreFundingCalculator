@@ -311,8 +311,13 @@ function renderSummaryBox() {
         // Populate category budget tracking
         let catKey = instance.baseServiceType;
         if (!catKey) catKey = 'Other';
-        // Treat both travel and transport as one tracking bucket for convenience
-        if (catKey.startsWith('Transport') || catKey.startsWith('Travel') || catKey.includes('Transport')) catKey = 'Transport/Travel';
+        
+        // Map specific travel types to their respective budgets
+        if (catKey === 'Travel' || catKey === 'Activity Based Transport') {
+            catKey = 'Social and Community Access';
+        } else if (catKey === 'Provider Travel - Non Labour Cost') {
+            catKey = 'Self-Care Activities';
+        }
         
         // Group associated Core services into the main Self-Care budget bucket
         if (['Night-Time Sleepover', 'House Cleaning', 'Yard Maintenance'].includes(catKey)) {

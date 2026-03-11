@@ -492,7 +492,7 @@ function setupModalListeners() {
     modalServiceType.addEventListener('change', () => {
         const selectedType = modalServiceType.value;
         const isManual = ['Consumable', 'Transport'].includes(selectedType);
-        const isTravel = selectedType === 'Travel';
+        const isTravel = selectedType === 'Activity Based Transport' || selectedType === 'Provider Travel - Non Labour Cost' || selectedType === 'Travel';
 
         // 1. Reset standard visibility
         document.getElementById('modalWeeklyFields').style.display = (isManual || isTravel) ? 'none' : 'block';
@@ -526,7 +526,7 @@ function updateModalRatePlaceholder() {
     const day = document.getElementById('modalSlotDay').value;
     const startDateStr = document.getElementById('periodStartDate').value;
 
-    if (!startTime || !day || !serviceType || !startDateStr || ['Consumable', 'Transport', 'Travel'].includes(serviceType)) {
+    if (!startTime || !day || !serviceType || !startDateStr || ['Consumable', 'Transport', 'Travel', 'Activity Based Transport', 'Provider Travel - Non Labour Cost'].includes(serviceType)) {
         rateEl.placeholder = 'Auto';
         return;
     }
@@ -576,10 +576,10 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
         
         if (instance.type === 'manual' && !instance.details.includes('hrs')) {
             // Check if it's Travel by description or other marker
-            if (instance.description.startsWith('Travel')) {
-                typeEl.value = 'Travel';
+            if (instance.description.startsWith('Travel') || instance.description.startsWith('Activity Based Transport') || instance.description.startsWith('Provider Travel')) {
+                typeEl.value = instance.description.startsWith('Provider Travel') ? 'Provider Travel - Non Labour Cost' : 'Activity Based Transport';
                 // Extract KM from "Travel: 20 km"
-                const kmMatch = instance.description.match(/Travel: ([\d\.]+) km/);
+                const kmMatch = instance.description.match(/([\d\.]+) km/);
                 const km = kmMatch ? parseFloat(kmMatch[1]) : 0;
                 document.getElementById('modalTravelKm').value = km;
                 document.getElementById('modalTravelCostDisplay').textContent = '$' + (km * 1.00).toFixed(2);
@@ -625,7 +625,7 @@ function openScheduleModal(day, hour, serviceId = null, selection = null, contex
             document.getElementById('deleteServiceBtn').style.display = 'inline-flex';
             
             // Populate Travel KM if available
-            if (slot.serviceType === 'Travel') {
+            if (slot.serviceType === 'Travel' || slot.serviceType === 'Activity Based Transport' || slot.serviceType === 'Provider Travel - Non Labour Cost') {
                 document.getElementById('modalTravelKm').value = slot.km || '';
                 document.getElementById('modalTravelCostDisplay').textContent = '$' + ((slot.km || 0) * 1.00).toFixed(2);
             }
@@ -659,13 +659,13 @@ function saveServiceFromModal() {
     const context = document.getElementById('modalContext').value;
     const serviceType = document.getElementById('modalServiceType').value;
     const isManual = ['Consumable', 'Transport'].includes(serviceType);
-    const isTravel = serviceType === 'Travel';
+    const isTravel = serviceType === 'Activity Based Transport' || serviceType === 'Provider Travel - Non Labour Cost' || serviceType === 'Travel';
 
     const getManualData = () => {
         if (isTravel) {
             const km = parseFloat(document.getElementById('modalTravelKm').value) || 0;
             return {
-                description: `Travel: ${km} km`,
+                description: `${serviceType}: ${km} km`,
                 cost: km * 1.00 
             };
         } else {
@@ -834,7 +834,7 @@ function setupMultiDayListeners() {
             endEl.disabled = false;
         }
 
-        if (type === 'Travel') {
+        if (type === 'Travel' || type === 'Activity Based Transport' || type === 'Provider Travel - Non Labour Cost') {
             ratioGroup.classList.add('hidden');
             kmGroup.classList.remove('hidden');
         } else {
@@ -849,7 +849,7 @@ function setupMultiDayListeners() {
         const type = document.getElementById('multiDayServiceType').value;
         const freq = document.getElementById('multiDayFrequency').value;
         const checkBoxes = document.querySelectorAll('#multiDaySelector input:checked');
-        const isTravel = type === 'Travel';
+        const isTravel = type === 'Travel' || type === 'Activity Based Transport' || type === 'Provider Travel - Non Labour Cost';
         
         if(!start || !end || checkBoxes.length === 0) {
             calcShowMessage("Please complete all fields");

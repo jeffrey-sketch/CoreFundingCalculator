@@ -3,9 +3,6 @@ function buildCalculatorHTML(placeholder) {
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row items-center justify-between mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div class="flex items-center gap-4">
-                <div class="h-16 w-16 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden shadow-inner">
-                    <img src="Connect_Support_Group_Logo.png" alt="Logo" class="max-h-full max-w-full" onerror="this.onerror=null;this.src='https://placehold.co/96x96/eee/ccc?text=Logo';">
-                </div>
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">NDIS Budget Builder</h1>
                     <p class="text-sm text-gray-500 font-medium">Comprehensive service scheduling and budget estimation.</p>
@@ -83,7 +80,7 @@ function buildCalculatorHTML(placeholder) {
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category Sub-Budgets (Optional)</label>
                         <p class="text-xs text-gray-400 mb-4 leading-relaxed">Set specific limits to track remaining funds per category in the Plan Summary below.</p>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-[11px] font-medium text-gray-500 mb-1">Self-Care</label>
                                 <div class="relative"><span class="absolute left-2.5 top-1.5 text-gray-400 text-sm font-medium">$</span><input type="text" class="category-budget-input currency-input w-full pl-6 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition-colors" data-category="Self-Care Activities" placeholder="0.00"></div>
@@ -91,10 +88,6 @@ function buildCalculatorHTML(placeholder) {
                             <div>
                                 <label class="block text-[11px] font-medium text-gray-500 mb-1">Social Access</label>
                                 <div class="relative"><span class="absolute left-2.5 top-1.5 text-gray-400 text-sm font-medium">$</span><input type="text" class="category-budget-input currency-input w-full pl-6 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition-colors" data-category="Social and Community Access" placeholder="0.00"></div>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-gray-500 mb-1">Transport / Travel</label>
-                                <div class="relative"><span class="absolute left-2.5 top-1.5 text-gray-400 text-sm font-medium">$</span><input type="text" class="category-budget-input currency-input w-full pl-6 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition-colors" data-category="Transport/Travel" placeholder="0.00"></div>
                             </div>
                         </div>
                     </div>
@@ -267,7 +260,8 @@ function buildCalculatorHTML(placeholder) {
                             <option value="Yard Maintenance">Yard Maintenance</option>
                             <option value="Consumable">Consumable</option>
                             <option value="Transport">Transport</option>
-                            <option value="Travel">Travel ($1.00/km)</option>
+                            <option value="Activity Based Transport">Activity Based Transport ($1.00/km)</option>
+                            <option value="Provider Travel - Non Labour Cost">Provider Travel - Non Labour Cost ($1.00/km)</option>
                         </select>
                     </div>
 
@@ -381,7 +375,8 @@ function buildCalculatorHTML(placeholder) {
                                         <option value="House Cleaning">House Cleaning</option>
                                         <option value="Increased Social and Community Access">Increased Social Access</option>
                                         <option value="Yard Maintenance">Yard Maintenance</option>
-                                        <option value="Travel">Travel</option>
+                                        <option value="Activity Based Transport">Activity Based Transport</option>
+                                        <option value="Provider Travel - Non Labour Cost">Provider Travel - Non Labour Cost</option>
                                     </select>
                                 </div>
                                 <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Start</label><input type="time" id="multiDayStartTime" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" step="900"></div>

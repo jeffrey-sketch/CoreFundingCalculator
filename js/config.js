@@ -23,7 +23,8 @@ const ratesPre20250701 = {
     "House Cleaning": { "Any": { rate: 56.23, rateRemote: 78.72, rateVeryRemote: 84.35, unit: "hour" } },
     "Increased Social and Community Access": { "Any": { rate: 77.00, rateRemote: 107.80, rateVeryRemote: 115.50, unit: "hour" } },
     "Yard Maintenance": { "Any": { rate: 55.21, rateRemote: 77.29, rateVeryRemote: 82.82, unit: "hour" } },
-    "Travel": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
+    "Activity Based Transport": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
+    "Provider Travel - Non Labour Cost": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
     // Retain legacy combined string just in case old save files request it for lookups
     "Self-Care Activities/Social and Community Access": {
         "Mon-Fri-Night": { startHour: 0, endHour: 6, rate: 75.82, rateRemote: 106.15, rateVeryRemote: 113.73 },
@@ -57,7 +58,8 @@ const ratesPost20250701 = {
     "House Cleaning": { "Any": { rate: 58.03, rateRemote: 81.24, rateVeryRemote: 87.05, unit: "hour" } },
     "Increased Social and Community Access": { "Any": { rate: 80.06, rateRemote: 112.08, rateVeryRemote: 120.09, unit: "hour" } },
     "Yard Maintenance": { "Any": { rate: 56.98, rateRemote: 79.77, rateVeryRemote: 85.47, unit: "hour" } },
-    "Travel": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
+    "Activity Based Transport": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
+    "Provider Travel - Non Labour Cost": { "Any": { rate: 1.00, rateRemote: 1.00, rateVeryRemote: 1.00, unit: "km" } },
     // Retain legacy combined string
     "Self-Care Activities/Social and Community Access": {
         "Mon-Fri-Night": { startHour: 0, endHour: 6, rate: 78.81, rateRemote: 110.33, rateVeryRemote: 118.22 },
@@ -101,7 +103,9 @@ const serviceTypeMap = {
     "House Cleaning": "House Cleaning",
     "Increased Social and Community Access": "Increased Social",
     "Yard Maintenance": "Yard Maintenance",
-    "Travel": "Travel"
+    "Activity Based Transport": "Activity Based Transport",
+    "Travel": "Activity Based Transport", // Retained for backwards compatibility on loading
+    "Provider Travel - Non Labour Cost": "Provider Travel"
 };
 
 // Colors
@@ -115,7 +119,9 @@ const serviceTypeColors = {
     "Yard Maintenance": "bg-yellow-500",
     "Transport": "bg-gray-500",
     "Consumable": "bg-gray-500",
-    "Travel": "bg-orange-500"
+    "Activity Based Transport": "bg-orange-500",
+    "Travel": "bg-orange-500", // Retained for backwards compatibility on loading
+    "Provider Travel - Non Labour Cost": "bg-orange-400"
 };
 
 // The Main Application State

@@ -50,6 +50,31 @@
                         </a>
                     </div>
                     <div class="flex items-center space-x-3">
+                         <!-- Dark Mode Toggle Styles -->
+                         <style>
+                             /* Base Active Dark Mode States (when not hovered) */
+                             #darkModeCheckbox:checked ~ svg .toggle-track { fill: #1e293b !important; }
+                             #darkModeCheckbox:checked ~ svg .toggle-stars { opacity: 1 !important; transform: translateY(0) !important; }
+                             #darkModeCheckbox:checked ~ svg .toggle-clouds { opacity: 0 !important; transform: translateY(-4px) !important; }
+                             #darkModeCheckbox:checked ~ svg .toggle-thumb { transform: translate(48px, 16px) !important; }
+                             #darkModeCheckbox:checked ~ svg .toggle-body { fill: #cbd5e1 !important; }
+                             #darkModeCheckbox:checked ~ svg .toggle-craters { opacity: 1 !important; }
+
+                             /* Light Mode Hover (Preview Dark - Sun to Moon) */
+                             label.group:hover #darkModeCheckbox:not(:checked) ~ svg .toggle-track { fill: #1e293b !important; }
+                             label.group:hover #darkModeCheckbox:not(:checked) ~ svg .toggle-stars { opacity: 1 !important; transform: translateY(0) !important; }
+                             label.group:hover #darkModeCheckbox:not(:checked) ~ svg .toggle-clouds { opacity: 0 !important; transform: translateY(-4px) !important; }
+                             label.group:hover #darkModeCheckbox:not(:checked) ~ svg .toggle-body { fill: #cbd5e1 !important; }
+                             label.group:hover #darkModeCheckbox:not(:checked) ~ svg .toggle-craters { opacity: 1 !important; }
+
+                             /* Dark Mode Hover (Preview Light - Moon to Sun) */
+                             label.group:hover #darkModeCheckbox:checked ~ svg .toggle-track { fill: #60a5fa !important; }
+                             label.group:hover #darkModeCheckbox:checked ~ svg .toggle-stars { opacity: 0 !important; transform: translateY(4px) !important; }
+                             label.group:hover #darkModeCheckbox:checked ~ svg .toggle-clouds { opacity: 1 !important; transform: translateY(0) !important; }
+                             label.group:hover #darkModeCheckbox:checked ~ svg .toggle-body { fill: #facc15 !important; }
+                             label.group:hover #darkModeCheckbox:checked ~ svg .toggle-craters { opacity: 0 !important; }
+                         </style>
+
                          <!-- Custom SVG Theme Toggle -->
                          <label for="darkModeCheckbox" class="flex items-center cursor-pointer group" title="Toggle Dark Mode">
                              <input type="checkbox" id="darkModeCheckbox" class="sr-only">
@@ -75,7 +100,7 @@
                                  <!-- Sliding Thumb -->
                                  <g class="toggle-thumb transition-transform duration-500 ease-in-out drop-shadow-md" transform="translate(16, 16)">
                                      <!-- Glow ring (Expands on hover) -->
-                                     <circle class="toggle-glow transition-all duration-500 ease-in-out opacity-0" cx="0" cy="0" r="14" fill="#ffffff" />
+                                     <circle class="toggle-glow transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-20" cx="0" cy="0" r="14" fill="#ffffff" />
                                      
                                      <!-- Main Sun/Moon Body -->
                                      <circle class="toggle-body transition-colors duration-500 ease-in-out" cx="0" cy="0" r="11" fill="#facc15" />
